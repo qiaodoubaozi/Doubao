@@ -1,15 +1,18 @@
 package com.doubao.backend.service.impl;
+import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.doubao.backend.mapper.UserMapper;
 import com.doubao.backend.model.User;
 import com.doubao.backend.service.UserService;
-import com.doubao.backend.mapper.UserMapper;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
 
 /**
  * @author Lenovo
@@ -17,16 +20,18 @@ import org.springframework.util.DigestUtils;
  * @createDate 2024-02-29 23:56:08
  */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User>
-        implements UserService {
+@Slf4j
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @Resource
     private UserMapper userMapper;
 
+    private static final String salt = "doubao";
+
+    private static final String USER_LOGIN_STATE = "userLoginState";
+
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
-
-        final String salt = "doubao";
 
         // 账号密码不能为空
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
@@ -69,6 +74,54 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         return 0;
+    }
+
+    @Override
+    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+            return null;
+        }
+
+        // 账号格式校验
+        String accountPattern = "^[a-zA-Z0-9_]{4,16}$";
+        if (!userAccount.matches(accountPattern)) {
+            return null;
+        }
+
+        // 密码格式校验
+        String passwordPattern = "^[a-zA-Z0-9_]{8,16}$";
+        if (!userPassword.matches(passwordPattern)) {
+            return null;
+        }
+
+        String encryptPassword = DigestUtils.md5DigestAsHex((userPassword + salt).getBytes());
+
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount);
+        queryWrapper.eq("userPassword", encryptPassword);
+        User user = userMapper.selectOne(queryWrapper);
+
+        if (user == null) {
+            log.info("user login failed, userAccount can not be found or password is wrong");
+            return null;
+        }
+
+        // 用户脱敏
+        User safeUser = new User();
+        safeUser.setId(user.getId());
+        safeUser.setUsername(user.getUsername());
+        safeUser.setUserAccount(user.getUserAccount());
+        safeUser.setAvatarUrl(user.getAvatarUrl());
+        safeUser.setGender(user.getGender());
+        safeUser.setPhone(user.getPhone());
+        safeUser.setEmail(user.getEmail());
+        safeUser.setUserStatus(user.getUserStatus());
+        safeUser.setCreateTime(user.getCreateTime());
+
+        // 保存登录状态
+        request.getSession().setAttribute(USER_LOGIN_STATE, safeUser);
+
+        return safeUser;
     }
 }
 
