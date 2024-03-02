@@ -28,8 +28,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private static final String salt = "doubao";
 
-    private static final String USER_LOGIN_STATE = "userLoginState";
-
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
 
@@ -107,22 +105,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 用户脱敏
-        User safeUser = new User();
-        safeUser.setId(user.getId());
-        safeUser.setUsername(user.getUsername());
-        safeUser.setUserAccount(user.getUserAccount());
-        safeUser.setAvatarUrl(user.getAvatarUrl());
-        safeUser.setGender(user.getGender());
-        safeUser.setPhone(user.getPhone());
-        safeUser.setEmail(user.getEmail());
-        safeUser.setUserStatus(user.getUserStatus());
-        safeUser.setCreateTime(user.getCreateTime());
+        User safeUser = getSafeUser(user);
 
         // 保存登录状态
         request.getSession().setAttribute(USER_LOGIN_STATE, safeUser);
 
         return safeUser;
     }
+
+    @Override
+    public User getSafeUser(User originUser) {
+        User safeUser = new User();
+        safeUser.setId(originUser.getId());
+        safeUser.setUsername(originUser.getUsername());
+        safeUser.setUserAccount(originUser.getUserAccount());
+        safeUser.setAvatarUrl(originUser.getAvatarUrl());
+        safeUser.setGender(originUser.getGender());
+        safeUser.setPhone(originUser.getPhone());
+        safeUser.setEmail(originUser.getEmail());
+        safeUser.setUserStatus(originUser.getUserStatus());
+        safeUser.setCreateTime(originUser.getCreateTime());
+        safeUser.setUserRole(originUser.getUserRole());
+        return safeUser;
+    }
+
 }
 
 
