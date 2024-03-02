@@ -71,7 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return -1;
         }
 
-        return 0;
+        return user.getId();
     }
 
     @Override
@@ -115,6 +115,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User getSafeUser(User originUser) {
+        if(originUser == null){
+            return null;
+        }
         User safeUser = new User();
         safeUser.setId(originUser.getId());
         safeUser.setUsername(originUser.getUsername());
