@@ -41,6 +41,11 @@ public class UserController {
         return userService.userLogin(userAccount, userPassword, request);
     }
 
+    @GetMapping("/logout")
+    public void logout(HttpServletRequest request) {
+        request.getSession().removeAttribute(UserService.USER_LOGIN_STATE);
+    }
+
     @GetMapping("/current")
     public User getCurrentUser(HttpServletRequest request) {
         Object userObj = request.getSession().getAttribute("userLoginState");
@@ -51,8 +56,7 @@ public class UserController {
         long userId = currentUser.getId();
         // TODO 校验用户是否合法
         User user = userService.getById(userId);
-        User safetyUser = userService.getSafeUser(user);
-        return safetyUser;
+        return userService.getSafeUser(user);
     }
 
 
