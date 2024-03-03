@@ -238,6 +238,7 @@ const Login: React.FC = () => {
               style={{
                 float: 'left',
               }}
+              href={'/user/register'}
             >
               <FormattedMessage id="pages.login.register" defaultMessage="现在注册!"/>
             </a>

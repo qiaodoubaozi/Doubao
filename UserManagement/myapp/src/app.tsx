@@ -6,11 +6,11 @@ import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
-import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
+import {currentUser, currentUser as queryCurrentUser} from '@/services/ant-design-pro/api';
 import React from 'react';
 const isDev = process.env.NODE_ENV === 'development';
+const WHITE_LIST = ['/user/login', '/user/register'];
 const loginPath = '/user/login';
-const registerPath = '/user/register';
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
@@ -26,7 +26,7 @@ export async function getInitialState(): Promise<{
       const user = await queryCurrentUser({
         skipErrorHandler: true,
       });
-      return user.data;
+      return user;
     } catch (error) {
       history.push(loginPath);
     }
@@ -34,7 +34,8 @@ export async function getInitialState(): Promise<{
   };
   // 如果不是登录页面，执行
   const { location } = history;
-  if (location.pathname !== loginPath && location.pathname !== registerPath) {
+  console.log(location.pathname)
+  if (!WHITE_LIST.includes(location.pathname)) {
     const currentUser = await fetchUserInfo();
     return {
       fetchUserInfo,
@@ -65,8 +66,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
+      console.log(initialState?.currentUser);
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && (location.pathname !== loginPath && location.pathname !== registerPath)) {
+      if (!initialState?.currentUser && !WHITE_LIST.includes(location.pathname)) {
         history.push(loginPath);
       }
     },

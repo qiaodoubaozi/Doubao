@@ -8,6 +8,7 @@ import Settings from '../../../../config/defaultSettings';
 import React, {useState} from 'react';
 import {createStyles} from 'antd-style';
 import {LOGO_URL} from "@/constants";
+import {history} from "@@/core/history";
 
 const useStyles = createStyles(({ token }) => {
   return {
@@ -90,14 +91,12 @@ const Register: React.FC = () => {
       if (id > 0) {
         const defaultLoginSuccessMessage = '注册成功！';
         message.success(defaultLoginSuccessMessage);
+        history.push('/user/login');
         return;
       }
       throw new Error(`注册失败，错误id: ${id}`);
     } catch (error) {
-      const defaultLoginFailureMessage = intl.formatMessage({
-        id: 'pages.login.failure',
-        defaultMessage: '注册失败，请重试！',
-      });
+      const defaultLoginFailureMessage = '注册失败，请重试！';
       console.log(error);
       message.error(defaultLoginFailureMessage);
     }
@@ -108,10 +107,7 @@ const Register: React.FC = () => {
     <div className={styles.container}>
       <Helmet>
         <title>
-          {intl.formatMessage({
-            id: 'menu.login',
-            defaultMessage: '注册页',
-          })}
+          {'注册页'}
           - {Settings.title}
         </title>
       </Helmet>
