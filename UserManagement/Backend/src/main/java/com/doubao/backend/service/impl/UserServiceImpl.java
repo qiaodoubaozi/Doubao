@@ -2,6 +2,8 @@ package com.doubao.backend.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.doubao.backend.common.ErrorCode;
+import com.doubao.backend.exception.BusinessException;
 import com.doubao.backend.mapper.UserMapper;
 import com.doubao.backend.model.User;
 import com.doubao.backend.service.UserService;
@@ -32,31 +34,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 账号密码不能为空
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号密码不能为空");
         }
 
         // 账号格式校验
         String accountPattern = "^[a-zA-Z0-9_]{4,16}$";
         if (!userAccount.matches(accountPattern)) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号格式不正确");
         }
 
         // 密码格式校验
         String passwordPattern = "^[a-zA-Z0-9_]{8,16}$";
         if (!userPassword.matches(passwordPattern)) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码格式不正确");
         }
 
         // 两次输入密码一致性校验
         if (!userPassword.equals(checkPassword)) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入密码不一致");
         }
 
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         long count = userMapper.selectCount(queryWrapper);
         if (count > 0) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号已存在");
         }
 
         String encryptPassword = DigestUtils.md5DigestAsHex((userPassword + salt).getBytes());
@@ -67,7 +69,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserPassword(encryptPassword);
         boolean saveResult = this.save(user);
         if (!saveResult) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "注册失败");
         }
 
         return user.getId();
@@ -76,19 +78,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号密码不能为空");
         }
 
         // 账号格式校验
         String accountPattern = "^[a-zA-Z0-9_]{4,16}$";
         if (!userAccount.matches(accountPattern)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号格式不正确");
         }
 
         // 密码格式校验
         String passwordPattern = "^[a-zA-Z0-9_]{8,16}$";
         if (!userPassword.matches(passwordPattern)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码格式不正确");
         }
 
         String encryptPassword = DigestUtils.md5DigestAsHex((userPassword + salt).getBytes());
@@ -99,8 +101,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = userMapper.selectOne(queryWrapper);
 
         if (user == null) {
-            log.info("user login failed, userAccount can not be found or password is wrong");
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号不存在或密码错误");
         }
 
         // 用户脱敏
