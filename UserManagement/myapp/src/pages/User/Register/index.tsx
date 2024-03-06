@@ -1,8 +1,9 @@
+// @ts-ignore
 import {Footer} from '@/components';
 import {register} from '@/services/ant-design-pro/api';
 import {LockOutlined, UserOutlined,} from '@ant-design/icons';
 import {LoginForm, ProFormText,} from '@ant-design/pro-components';
-import {FormattedMessage, Helmet, SelectLang, useIntl} from '@umijs/max';
+import {FormattedMessage, Helmet} from '@umijs/max';
 import {Alert, message, Tabs} from 'antd';
 import Settings from '../../../../config/defaultSettings';
 import React, {useState} from 'react';
@@ -10,7 +11,7 @@ import {createStyles} from 'antd-style';
 import {LOGO_URL} from "@/constants";
 import {history} from "@@/core/history";
 
-const useStyles = createStyles(({ token }) => {
+const useStyles = createStyles(({token}) => {
   return {
     action: {
       marginLeft: '8px',
@@ -46,19 +47,9 @@ const useStyles = createStyles(({ token }) => {
   };
 });
 
-const Lang = () => {
-  const { styles } = useStyles();
-
-  return (
-    <div className={styles.lang} data-lang>
-      {SelectLang && <SelectLang />}
-    </div>
-  );
-};
-
 const LoginMessage: React.FC<{
   content: string;
-}> = ({ content }) => {
+}> = ({content}) => {
   return (
     <Alert
       style={{
@@ -72,36 +63,28 @@ const LoginMessage: React.FC<{
 };
 
 const Register: React.FC = () => {
-  const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
+  const [userLoginState,] = useState<API.LoginResult>({});
   const [type, setType] = useState<string>('account');
-  const { styles } = useStyles();
-  const intl = useIntl();
+  const {styles} = useStyles();
 
   const handleSubmit = async (values: API.RegisterParams) => {
     const {userPassword, checkPassword} = values;
     // 校验
-    if(userPassword !== checkPassword) {
+    if (userPassword !== checkPassword) {
       message.error('两次输入的密码不一致，请重新输入！');
       return;
     }
 
-    try {
-      // 注册
-      const id = await register(values);
-      if (id > 0) {
-        const defaultLoginSuccessMessage = '注册成功！';
-        message.success(defaultLoginSuccessMessage);
-        history.push('/user/login');
-        return;
-      }
-      throw new Error(`注册失败，错误id: ${id}`);
-    } catch (error) {
-      const defaultLoginFailureMessage = '注册失败，请重试！';
-      console.log(error);
-      message.error(defaultLoginFailureMessage);
+    // 注册
+    const id = await register(values);
+    if (id.data > 0) {
+      const defaultLoginSuccessMessage = '注册成功！';
+      message.success(defaultLoginSuccessMessage);
+      history.push('/user/login');
+      return;
     }
   };
-  const { status, type: loginType } = userLoginState;
+  const {status, type: loginType} = userLoginState;
 
   return (
     <div className={styles.container}>
@@ -111,7 +94,6 @@ const Register: React.FC = () => {
           - {Settings.title}
         </title>
       </Helmet>
-      <Lang />
       <div
         style={{
           flex: '1',
@@ -128,7 +110,7 @@ const Register: React.FC = () => {
             minWidth: 280,
             maxWidth: '75vw',
           }}
-          logo={<img alt="logo" src={LOGO_URL} />}
+          logo={<img alt="logo" src={LOGO_URL}/>}
           title="豆包用户管理中心"
           subTitle={<>豆包用户管理中心</>}
           initialValues={{
@@ -162,7 +144,7 @@ const Register: React.FC = () => {
                 name="userAccount"
                 fieldProps={{
                   size: 'large',
-                  prefix: <UserOutlined />,
+                  prefix: <UserOutlined/>,
                 }}
                 placeholder={'请输入账号'}
                 rules={[
@@ -181,7 +163,7 @@ const Register: React.FC = () => {
                 name="userPassword"
                 fieldProps={{
                   size: 'large',
-                  prefix: <LockOutlined />,
+                  prefix: <LockOutlined/>,
                 }}
                 placeholder={'请输入密码'}
                 rules={[
@@ -210,7 +192,7 @@ const Register: React.FC = () => {
                 name="checkPassword"
                 fieldProps={{
                   size: 'large',
-                  prefix: <LockOutlined />,
+                  prefix: <LockOutlined/>,
                 }}
                 placeholder={'再次确认您的密码'}
                 rules={[
@@ -246,7 +228,7 @@ const Register: React.FC = () => {
           </div>
         </LoginForm>
       </div>
-      <Footer />
+      <Footer/>
     </div>
   );
 };

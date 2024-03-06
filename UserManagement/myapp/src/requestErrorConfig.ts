@@ -1,4 +1,5 @@
-﻿import type { RequestOptions } from '@@/plugin-request/request';
+﻿// @ts-ignore
+import type { RequestOptions } from '@@/plugin-request/request';
 import type { RequestConfig } from '@umijs/max';
 import { message, notification } from 'antd';
 
@@ -99,9 +100,9 @@ export const errorConfig: RequestConfig = {
     (response) => {
       // 拦截响应数据，进行个性化处理
       const { data } = response as unknown as ResponseStructure;
-
-      if (data?.success === false) {
-        message.error('请求失败！');
+      console.log('responseInterceptors:', data);
+      if (data?.message !== 'success') {
+        message.error(data?.description);
       }
       return response;
     },

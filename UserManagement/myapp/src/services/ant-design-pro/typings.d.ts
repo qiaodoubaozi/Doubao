@@ -2,17 +2,24 @@
 /* eslint-disable */
 
 declare namespace API {
+
+  type BaseResponse<T> = {
+    code: number;
+    data: T;
+    message: string;
+    description: string;
+  }
+
   type CurrentUser = {
     id: number;
     username: string;
     userAccount: string;
     avatarUrl?: string;
-    gender:number;
+    gender: number;
     phone: string;
     email: string;
     userStatus: number;
     userRole: number;
-    planetCode: string;
     createTime: Date;
   };
 
@@ -30,30 +37,27 @@ declare namespace API {
   };
 
   type RuleListItem = {
-    key?: number;
-    disabled?: boolean;
-    href?: string;
-    avatar?: string;
-    name?: string;
-    owner?: string;
-    desc?: string;
-    callNo?: number;
-    status?: number;
-    updatedAt?: string;
-    createdAt?: string;
-    progress?: number;
+    id: number;
+    username?: string;
+    userAccount?: string;
+    avatarUrl?: string;
+    gender?: number;
+    phone?: string;
+    email?: string;
+    userStatus?: number;
+    createTime?: Date;
+    updateTime?: Date;
+    userRole?: number;
+    planetCode?: string;
   };
 
   type RuleList = {
     data?: RuleListItem[];
     /** 列表的内容总数 */
     total?: number;
-    success?: boolean;
-  };
-
-  type FakeCaptcha = {
-    code?: number;
-    status?: string;
+    size?: number;
+    current?: number;
+    pages?: number;
   };
 
   type LoginParams = {
@@ -76,13 +80,6 @@ declare namespace API {
     /** 业务上的错误信息 */
     errorMessage?: string;
     /** 业务上的请求是否成功 */
-    success?: boolean;
-  };
-
-  type NoticeIconList = {
-    data?: NoticeIconItem[];
-    /** 列表的内容总数 */
-    total?: number;
     success?: boolean;
   };
 

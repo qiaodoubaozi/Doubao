@@ -26,7 +26,7 @@ export async function getInitialState(): Promise<{
       const user = await queryCurrentUser({
         skipErrorHandler: true,
       });
-      return user;
+      return user.data;
     } catch (error) {
       history.push(loginPath);
     }
@@ -34,7 +34,6 @@ export async function getInitialState(): Promise<{
   };
   // 如果不是登录页面，执行
   const { location } = history;
-  console.log(location.pathname)
   if (!WHITE_LIST.includes(location.pathname)) {
     const currentUser = await fetchUserInfo();
     return {
@@ -66,7 +65,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
-      console.log(initialState?.currentUser);
       // 如果没有登录，重定向到 login
       if (!initialState?.currentUser && !WHITE_LIST.includes(location.pathname)) {
         history.push(loginPath);
