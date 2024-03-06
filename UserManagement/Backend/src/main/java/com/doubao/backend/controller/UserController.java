@@ -71,7 +71,7 @@ public class UserController {
     @GetMapping("/page")
     public BaseResponse<IPage<User>> pageUsers(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "10") int pageSize, HttpServletRequest request) {
         if(isNotAdmin(request)){
-            throw new BusinessException(ErrorCode.NO_AUTH);
+            throw new BusinessException(ErrorCode.NO_AUTH, "用户无权限");
         }
         Page<User> page = new Page<>(current, pageSize);
         Page<User> userPage = userService.page(page);

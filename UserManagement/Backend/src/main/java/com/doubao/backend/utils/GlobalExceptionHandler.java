@@ -11,7 +11,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public BaseResponse businessExceptionHandler(BusinessException e) {
-        return new BaseResponse(e.getCode(), null, e.getDescription());
+        return new BaseResponse(e.getCode(), null, e.getMessage(), e.getDescription());
     }
 
     @ExceptionHandler(RuntimeException.class)
