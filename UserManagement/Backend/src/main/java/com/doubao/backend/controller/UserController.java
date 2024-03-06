@@ -50,8 +50,9 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public void logout(HttpServletRequest request) {
+    public BaseResponse logout(HttpServletRequest request) {
         request.getSession().removeAttribute(UserService.USER_LOGIN_STATE);
+        return ResultUtils.success(null);
     }
 
     @GetMapping("/current")
@@ -59,7 +60,7 @@ public class UserController {
         Object userObj = request.getSession().getAttribute("userLoginState");
         User currentUser = (User) userObj;
         if (currentUser == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.NOT_LOGIN, "用户未登录");
         }
         long userId = currentUser.getId();
         // TODO 校验用户是否合法
