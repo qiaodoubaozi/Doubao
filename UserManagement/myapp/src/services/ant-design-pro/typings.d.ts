@@ -36,7 +36,7 @@ declare namespace API {
     pageSize?: number;
   };
 
-  type RuleListItem = {
+  type UserListItem = {
     id: number;
     username?: string;
     userAccount?: string;
@@ -51,8 +51,8 @@ declare namespace API {
     planetCode?: string;
   };
 
-  type RuleList = {
-    data?: RuleListItem[];
+  type UserList = {
+    data?: UserListItem[];
     /** 列表的内容总数 */
     total?: number;
     size?: number;

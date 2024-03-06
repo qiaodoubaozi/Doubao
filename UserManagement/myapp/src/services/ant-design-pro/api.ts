@@ -43,7 +43,7 @@ export async function register(body: API.RegisterParams, options?: { [key: strin
 }
 
 /** 获取规则列表 GET /api/rule */
-export async function rule(
+export async function getPageOfUsers(
   params: {
     // query
     /** 当前的页码 */
@@ -53,7 +53,7 @@ export async function rule(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>('/api/user/page', {
+  return request<API.BaseResponse<API.UserList>>('/api/user/page', {
     method: 'GET',
     params: {
       ...params,

@@ -1,45 +1,142 @@
-import { HeartTwoTone, SmileTwoTone } from '@ant-design/icons';
-import { PageContainer } from '@ant-design/pro-components';
-import { useIntl } from '@umijs/max';
-import { Alert, Card, Typography } from 'antd';
-import React from 'react';
+import React, { useRef } from 'react';
+import type { ProColumns, ActionType } from '@ant-design/pro-table';
+import ProTable, { TableDropdown } from '@ant-design/pro-table';
+import {getPageOfUsers} from "@/services/ant-design-pro/api";
+import {Image} from "antd";
 
-const Admin: React.FC = () => {
-  const intl = useIntl();
+const columns: ProColumns<API.CurrentUser>[] = [
+  {
+    dataIndex: 'id',
+    valueType: 'indexBorder',
+    width: 48,
+  },
+  {
+    title: '用户名',
+    dataIndex: 'username',
+    copyable: true,
+  },
+  {
+    title: '用户账户',
+    dataIndex: 'userAccount',
+    copyable: true,
+  },
+  {
+    title: '头像',
+    dataIndex: 'avatarUrl',
+    render: (_, record) => (
+      <div>
+        <Image src={record.avatarUrl} width={100} />
+      </div>
+    ),
+  },
+  {
+    title: '性别',
+    dataIndex: 'gender',
+    valueEnum: {
+      0: { text: '男' },
+      1: { text: '女' },
+    },
+  },
+  {
+    title: '电话',
+    dataIndex: 'phone',
+    copyable: true,
+  },
+  {
+    title: '邮件',
+    dataIndex: 'email',
+    copyable: true,
+  },
+  {
+    title: '状态',
+    dataIndex: 'userStatus',
+    valueEnum: {
+      0: { text: '正常', status: 'Processing' },
+      1: { text: '异常', status: 'Error' },
+    },
+  },
+  {
+    title: '星球编号',
+    dataIndex: 'planetCode',
+  },
+  {
+    title: '角色',
+    dataIndex: 'userRole',
+    valueType: 'select',
+    valueEnum: {
+      0: { text: '普通用户', status: 'Default' },
+      1: {
+        text: '管理员',
+        status: 'Success',
+      },
+    },
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'createTime',
+    valueType: 'dateTime',
+  },
+  {
+    title: '操作',
+    valueType: 'option',
+    render: (text, record, _, action) => [
+      <a
+        key="editable"
+        onClick={() => {
+          action?.startEditable?.(record.id);
+        }}
+      >
+        编辑
+      </a>,
+      <a href={record.url} target="_blank" rel="noopener noreferrer" key="view">
+        删除
+      </a>,
+    ],
+  },
+];
+
+export default () => {
+  const actionRef = useRef<ActionType>();
   return (
-    <PageContainer
-      content={intl.formatMessage({
-        id: 'pages.admin.subPage.title',
-        defaultMessage: 'This page can only be viewed by admin',
-      })}
-    >
-      <Card>
-        <Alert
-          message={intl.formatMessage({
-            id: 'pages.welcome.alertMessage',
-            defaultMessage: 'Faster and stronger heavy-duty components have been released.',
-          })}
-          type="success"
-          showIcon
-          banner
-          style={{
-            margin: -12,
-            marginBottom: 48,
-          }}
-        />
-        <Typography.Title level={2} style={{ textAlign: 'center' }}>
-          <SmileTwoTone /> Ant Design Pro <HeartTwoTone twoToneColor="#eb2f96" /> You
-        </Typography.Title>
-      </Card>
-      <p style={{ textAlign: 'center', marginTop: 24 }}>
-        Want to add more pages? Please refer to{' '}
-        <a href="https://pro.ant.design/docs/block-cn" target="_blank" rel="noopener noreferrer">
-          use block
-        </a>
-        。
-      </p>
-    </PageContainer>
+    <ProTable<API.CurrentUser>
+      columns={columns}
+      actionRef={actionRef}
+      cardBordered
+      request={async (params = {}, sort, filter) => {
+        console.log(sort, filter);
+        const userList = await getPageOfUsers();
+        return {
+          data: userList.data.records
+        }
+      }}
+      editable={{
+        type: 'multiple',
+      }}
+      columnsState={{
+        persistenceKey: 'pro-table-singe-demos',
+        persistenceType: 'localStorage',
+      }}
+      rowKey="id"
+      search={{
+        labelWidth: 'auto',
+      }}
+      form={{
+        // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+        syncToUrl: (values, type) => {
+          if (type === 'get') {
+            return {
+              ...values,
+              created_at: [values.startTime, values.endTime],
+            };
+          }
+          return values;
+        },
+      }}
+      pagination={{
+        pageSize: 50,
+      }}
+      dateFormatter="string"
+      headerTitle="高级表格"
+    />
   );
 };
-
-export default Admin;
